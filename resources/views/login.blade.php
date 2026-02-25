@@ -1,242 +1,306 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Springfield School ERP</title>
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-
-    <!-- Styles / Scripts -->
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-
-    @endif
     <style>
+        /* Modern CSS Variables */
+        :root {
+            --primary-gradient: linear-gradient(90deg, #ff7e7e 0%, #8e54e9 100%);
+            --bg-gradient: radial-gradient(circle at top, #ffecd2 0%, #fcb69f 30%, #ffffff 100%);
+            --glass: rgba(255, 255, 255, 0.45);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        .main-bg {
-            background: radial-gradient(circle at top, #ffecd2 0%, #fcb69f 30%, #ffffff 100%);
+            background: var(--bg-gradient);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
         }
 
-        .btn-gradient {
-            background: linear-gradient(90deg, #ff7e7e 0%, #8e54e9 100%);
+        /* Profile Logo Section */
+        .logo-wrapper { position: relative; margin-bottom: 20px; }
+        .logo-circle {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            background: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Card Design */
+        .login-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 40px;
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(253, 186, 116, 0.3);
         }
 
-        .input-focus:focus-within {
-            border-color: #8e54e9;
-            box-shadow: 0 0 0 4px rgba(142, 84, 233, 0.1);
+        .header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px; }
+        .tag {
+            background: #fff5f5; color: #ff7e7e; font-size: 10px; font-weight: bold;
+            padding: 5px 12px; border-radius: 20px; text-transform: uppercase;
         }
+
+        /* Input Container */
+        .input-box {
+            background: white;
+            border: 2px solid #f3f4f6;
+            border-radius: 20px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+        }
+        .input-box:focus-within { border-color: #8e54e9; box-shadow: 0 0 0 4px rgba(142, 84, 233, 0.1); }
+        
+        .icon-bg { padding: 8px; border-radius: 12px; display: flex; align-items: center; }
+        .field { flex: 1; }
+        .field label { display: block; font-size: 10px; color: #9ca3af; font-weight: bold; text-transform: uppercase; }
+        .field input { border: none; outline: none; width: 100%; font-size: 14px; color: #374151; padding: 2px 0; }
+
+        /* Switch Toggle */
+        .switch-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.4); padding: 10px 15px; border-radius: 18px; margin-bottom: 20px;
+        }
+        .switch { position: relative; width: 36px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background: #d1d5db; border-radius: 34px; transition: .3s; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .3s; }
+        input:checked + .slider { background: #ff7e7e; }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* Button */
+        .btn-login {
+            background: var(--primary-gradient);
+            color: white; border: none; width: 100%; padding: 16px;
+            border-radius: 25px; font-weight: bold; font-size: 15px;
+            cursor: pointer; box-shadow: 0 10px 20px rgba(142, 84, 233, 0.2);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-login:active { transform: scale(0.98); }
+
+        .footer { margin-top: 30px; text-align: center; color: #9ca3af; font-size: 12px; }
+
+        /* Toast Container */
+#toast-container {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    width: 90%;
+    max-width: 350px;
+}
+
+/* Toast Box */
+.toast {
+    background: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 15px;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    animation: slideUp 0.4s ease-out;
+}
+
+.toast.error { background: #ff4d4d; border-left: 5px solid #b30000; }
+.toast.success { background: #00b894; border-left: 5px solid #006b56; }
+
+/* Animation */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade Out Animation */
+.fade-out {
+    opacity: 0;
+    transition: opacity 5.5s ease-out;
+}
     </style>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 
-<body class="main-bg flex flex-col items-center px-6 py-12">
+<body>
 
-    <div class="relative mb-8">
-        <div class="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
-            <img src="{{ asset('asset/graduated.png') }}" alt="Logo" class="w-full h-full object-cover">
+    <div class="logo-wrapper">
+        <div class="logo-circle">
+            <img src="{{ asset('asset/graduated.png') }}" alt="Logo" onerror="this.src='https://via.placeholder.com/100?text=ERP'">
         </div>
-        <div class="absolute inset-0 rounded-full border-[12px] border-orange-200/30 -m-2"></div>
     </div>
 
-    <div class="text-center mb-10">
-        <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">Springfield School ERP</h1>
-        <p class="text-gray-500 text-sm mt-3 px-6 leading-relaxed">
-            Login to manage attendance, homework, fees and more in one student dashboard.
-        </p>
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #374151; font-size: 26px;">Springfield School ERP</h1>
+        <p style="color: #6b7280; font-size: 13px; margin-top: 5px;">Secure Student Access</p>
     </div>
 
-    <div
-        class="bg-transparent backdrop-blur-md rounded-[45px] w-full max-w-md p-8 shadow-2xl shadow-orange-200/50 border border-white p-4">
-
-        <div class="flex justify-between items-center mb-8">
+    <div class="login-card">
+        <div class="header">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800">Welcome back</h2>
-                <p class="text-xs text-gray-800 mt-1">Sign in with your school credentials</p>
+                <h2 style="color: #1f2937;">Welcome back</h2>
+                <p style="color: #6b7280; font-size: 11px;">Sign in to continue</p>
             </div>
-            <span
-                class="bg-red-50 text-red-400 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
-                Student Portal
-            </span>
+            <span class="tag">Student</span>
         </div>
 
-        <form action="{{ route('student.login') }}" method="POST" enctype="multipart/form-data" id="login_form">
-            @csrf
-            <div class="flex justify-between items-center mb-8 bg-gray-50/50 p-2 rounded-2xl">
-                <div class="flex items-center gap-2 px-2">
-                    <div class="w-4 h-4 rounded-full bg-red-400"></div>
-                    <span class="text-sm font-bold text-gray-700">Student</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="text-xs font-semibold text-gray-400">Parent mode</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" value="" class="sr-only peer">
-                        <div
-                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-400">
-                        </div>
-                    </label>
-                </div>
-            </div>
-
-            <div class="space-y-5">
-                <div
-                    class="input-focus flex items-center gap-4 border-2 border-gray-100 rounded-3xl p-4 transition-all bg-white">
-                    <div class="text-indigo-500 bg-indigo-50 p-2 rounded-xl">
-                        <i data-lucide="badge-check" class="w-5 h-5"></i>
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase">Admission / Roll
-                            Number</label>
-                        <input type="text" name="username" placeholder="Enter your ID" class="w-full px-4 py-2.5 
-           border border-gray-300 
-           rounded-lg 
-           bg-white 
-           text-gray-700 
-           placeholder-gray-400
-           focus:outline-none 
-           focus:ring-2 
-           focus:ring-blue-500 
-           focus:border-blue-500
-           transition duration-200">
-                    </div>
-                </div>
-
-                <div
-                    class="input-focus flex items-center gap-4 border-2 border-gray-100 rounded-3xl p-4 transition-all bg-white">
-                    <div class="text-red-400 bg-red-50 p-2 rounded-xl">
-                        <i data-lucide="lock" class="w-5 h-5"></i>
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase">Password</label>
-                        <input type="password" name="password" value="" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 
-           focus:ring-blue-500 focus:border-blue-500 transition duration-200 password-input">
-                    </div>
-                    <button type="button" class="text-gray-300 show-password"><i data-lucide="eye" id="passwordicon"
-                            class="w-5 h-5"></i></button>
-                </div>
-            </div>
-
-            <div class="flex justify-between items-center mt-6 px-1">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" class="w-5 h-5 rounded-lg border-gray-300 text-red-400 focus:ring-red-400">
-                    <span class="text-xs font-semibold text-gray-400">Remember me</span>
+        <form id="login_form">
+            <div class="switch-row">
+                <span style="font-size: 13px; font-weight: bold; color: #4b5563;">Parent Mode</span>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
                 </label>
-                <a href="#" class="text-xs font-bold text-red-400">Forgot password?</a>
+            </div>
+            @csrf
+            <div class="input-box">
+                <div class="icon-bg" style="background: #eef2ff; color: #6366f1;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+                <div class="field">
+                    <label>Admission / Roll No</label>
+                    <input type="text" name="username" id="username" placeholder="Enter ID" required>
+                </div>
             </div>
 
-            <button type="submit" 
-                class="btn-gradient w-full mt-8 py-4 rounded-3xl text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-200 hover:opacity-90 transition-opacity">
-                Continue to dashboard
-                <i data-lucide="arrow-right" class="w-5 h-5"></i> 
+            <div class="input-box">
+                <div class="icon-bg" style="background: #fff5f5; color: #ff7e7e;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <input type="password" name="password" id="passInput" placeholder="••••••••" required>
+                </div>
+                <button type="button" id="togglePass" style="background: none; border: none; cursor: pointer; color: #d1d5db;">
+                    <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px;">
+                <label style="font-size: 12px; color: #9ca3af; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                    <input type="checkbox"> Remember
+                </label>
+                <a href="#" style="font-size: 12px; color: #ff7e7e; text-decoration: none; font-weight: bold;">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn-login">
+                Continue to Dashboard
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
         </form>
-
-        {{-- <div class="relative my-10">
-            <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-gray-100"></div>
-            </div>
-            <div class="relative flex justify-center text-xs uppercase font-bold text-gray-300">
-                <span class="bg-white px-4">or sign in with</span>
-            </div>
-        </div> --}}
-
-        {{-- <div class="grid grid-cols-2 gap-4">
-            <button
-                class="flex items-center justify-center gap-2 p-4 border-2 border-gray-50 rounded-3xl hover:bg-gray-50 transition-colors">
-                <i data-lucide="mail" class="w-4 h-4 text-gray-600"></i>
-                <span class="text-xs font-bold text-gray-600">School email</span>
-            </button>
-            <button
-                class="flex items-center justify-center gap-2 p-4 border-2 border-gray-50 rounded-3xl hover:bg-gray-50 transition-colors">
-                <i data-lucide="smartphone" class="w-4 h-4 text-gray-600"></i>
-                <span class="text-xs font-bold text-gray-600">OTP on mobile</span>
-            </button>
-        </div> --}}
     </div>
 
-    <div class="mt-12 text-center">
-        <p class="text-[11px] text-gray-400 font-medium px-10">
-            By continuing, you agree to the school's policies.
-        </p>
-        <button class="mt-4 flex items-center justify-center gap-1 mx-auto text-red-400 font-bold text-xs">
-            Need help logging in?
-            <i data-lucide="help-circle" class="w-4 h-4"></i>
-        </button>
+    <div class="footer">
+        <p>By continuing, you agree to school policies.</p>
+        <p style="color: #ff7e7e; font-weight: bold; margin-top: 10px; cursor: pointer;">Need Help?</p>
     </div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
+<div id="toast-container"></div>
     <script>
-        lucide.createIcons();
-
-        // $('.show-password').on('click',function(e){
-        //     var val = $(this .'i').prop('data-lucide');
-        //     alert(val);
-        // })
-
-    </script>
-    <script>
-        document.getElementById('login_form').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                fetch("{{ route('student.login') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
-                    },
-                    body: JSON.stringify({
-                        username: document.getElementsByName('username').value,
-                        password: document.getElementsByName('password').value,
-                        _token: document.getElementsByName('password').value,
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-
-                    if(data.status=='success'){
-                        localStorage.setItem('api_token', data.token);
-                        window.location.href = data.url;
-                    }
-                })
-                .catch(error => console.error(error));
-            });
-        document.addEventListener("DOMContentLoaded", function () {
-
-    document.querySelectorAll(".show-password").forEach(function(button) {
-
-        button.addEventListener("click", function () {
-
-            // nearest input find karo
-            const wrapper = button.closest("div.flex");
-            const input = wrapper.querySelector(".password-input");
-            const icon = button.querySelector("#passwordicon");
-
-            if (input.type === "password") {
-                input.type = "text";
-                icon.setAttribute("data-lucide", "eye");
-            } else {
-                input.type = "password";
-                icon.setAttribute("data-lucide", "eye-off");
-            }
-
-            lucide.createIcons(); // icon refresh
+        // Password Toggle Script (Pure JS)
+        const toggleBtn = document.getElementById('togglePass');
+        const passInput = document.getElementById('passInput');
+        
+        toggleBtn.addEventListener('click', () => {
+            const isPass = passInput.type === 'password';
+            passInput.type = isPass ? 'text' : 'password';
+            toggleBtn.style.color = isPass ? '#8e54e9' : '#d1d5db';
         });
 
-    });
+        // Form Submit
+        function showToast(message, type = 'error') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerText = message;
 
+    container.appendChild(toast);
+
+    // 3 second baad remove kar do
+    setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => toast.remove(), 5000);
+    }, 5000);
+}
+
+// Updated Submit Event
+document.getElementById('login_form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // CSRF Token fetch karne ka sahi tareeka
+    const token = document.querySelector('input[name="_token"]').value;
+    const username = document.getElementsByName('username')[0].value;
+    const password = document.getElementsByName('password')[0].value;
+
+    fetch("{{ route('student.login') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-CSRF-TOKEN": token
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            _token: token
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Agar server 401, 422 ya 500 error deta hai
+            throw response;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if(data.status == 'success'){
+            showToast("Login Successful! Redirecting...", "success");
+            localStorage.setItem('api_token', data.token);
+            setTimeout(() => { window.location.href = data.url; }, 1000);
+        } else {
+            // Agar status success nahi hai (Jaise wrong password)
+            showToast(data.message || "Invalid credentials");
+        }
+    })
+    .catch(async (error) => {
+        // Validation errors handling (Laravel default)
+        if (error.status === 422) {
+            const errData = await error.json();
+            const firstError = Object.values(errData.errors)[0][0];
+            showToast(firstError);
+        } else {
+            showToast("Network error or Server not responding");
+        }
+        console.error("Error:", error);
+    });
 });
+    let token = localStorage.getItem('api_token');
+    if(token && token!=""){
+        window.location.href = "/dashboard";
+    }
     </script>
 </body>
-
 </html>

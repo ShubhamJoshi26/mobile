@@ -196,11 +196,57 @@
             padding: 15px 20px;
             border-radius: 16px;
         }
+        /* --- BOTTOM NAV --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Center horizontally */
+            width: 100%;
+            max-width: 414px; /* Match container width */
+            background: white;
+            height: 75px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            z-index: 900;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #95a5a6;
+            font-size: 10px;
+            cursor: pointer;
+            width: 60px;
+        }
+        
+        .nav-icon { font-size: 22px; display: block; margin-bottom: 2px; }
+
+        /* Center QR Button */
+        .nav-center-wrapper {
+            position: relative;
+            top: -25px;
+        }
+        
+        .qr-btn {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(123, 74, 226, 0.4);
+            border: 4px solid #fff;
+        }
     </style>
 </head>
 <body>
 
-<div class="mobile-container">
+<div class="mobile-container mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <a href="/dashboard"><button class="header-btn"><i class="fas fa-arrow-left"></i></button></a>
         <h5 class="mb-0 fw-bold">My Profile</h5>
@@ -359,11 +405,14 @@
             <i class="fas fa-chevron-right text-white"></i>
         </button>
     </div>
-
+    <div class="mt-4 row px-4">
+         <button class="btn btn-danger cursor-pointer" onclick="logout()">Logout</button>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+{{-- <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> --}}
+ @include('layouts.bottom')
 <script>
     async function loadProfile() {
 
@@ -412,8 +461,27 @@
                     $('#student_profile').attr('src', profileImage);
                 }
         }
+       async function logout(){
+            let token = localStorage.getItem('api_token');
+
+            let response = await fetch(
+                'https://crm.magnitotechnologies.com/api/student/logout',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Accept': 'application/json'
+                    }
+                }
+            );
+
+            let data = await response.json();
+
+            if(data.status==true){
+                localStorage.removeItem('api_token');
+                window.location.href = "/";
+            }
+        }
 </script>
 </body>
 </html>
-
-```

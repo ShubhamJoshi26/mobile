@@ -14,4 +14,15 @@ class DashboardController extends Controller
         return view('profile');
     }
 
+    public function pendingfee(){
+        return view('pendingfee');
+    }
+
+    public function pendingFeeDetails(){
+        return view('pendingfee_details');
+    }
+
+    public function timetable(){
+        return view('timetable');
+    }
 }

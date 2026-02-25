@@ -10,22 +10,31 @@ use Nette\Utils\Json;
 class UserController extends Controller
 {
      public function login(){
+        // dd("sdsd");
         return view('login');
     }
 
     public function loginUser(Request $request){
-        try{
+        // try{
             if(!empty($request->all())){
                 $data = $request->all();
             }else{
                parse_str($request->getContent(), $data);
                 
             }
-            // dd(env('API_URL')."student/login");
-            $response = Http::post("https://crm.magnitotechnologies.com/api/student/login",[
-                'username'=>$data['username'],
-                'password'=>$data['password']
-            ]);
+         $response = Http::withHeaders([
+                        'Accept' => 'application/json',
+                        'Content-Type' => 'application/json',
+                    ])
+                    ->withOptions([
+                        'verify' => false,
+                        'timeout' => 30,
+                    ])
+                    ->post('https://crm.magnitotechnologies.com/api/student/login', [
+                        'username' => $request->username,
+                        'password' => $request->password,
+                    ]);
+
             $result = $response->json();
             if ($response->successful() && $result['status'] == true) {
 
@@ -51,8 +60,8 @@ class UserController extends Controller
                 }
             // $url = route('dashboard');
             // return response()->json(['status'=>'success','message'=>$url]);
-        }catch(Exception $e){
-            return response()->json(['status'=>400,'message'=>$e->getMessage()]);
-        }
+        // }catch(Exception $e){
+        //     return response()->json(['status'=>400,'message'=>$e->getMessage()]);
+        // }
     }
 }
